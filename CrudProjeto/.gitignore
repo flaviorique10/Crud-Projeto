@@ -1,0 +1,25 @@
+﻿# Pastas de build
+bin/
+obj/
+
+# Configurações do Visual Studio
+.vs/
+*.user
+*.suo
+
+# Backup e arquivos de log
+*.log
+*.db
+*.sqlite
+
+# Pastas de publicação
+publish/
+out/
+
+# Arquivos do sistema
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Configurações específicas de máquinas
+appsettings.Development.json
