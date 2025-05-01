@@ -1,19 +1,25 @@
-﻿namespace CrudProjeto.Model
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CrudProjeto.Model
 {
     public class Conta
     {
-        public int tipo_cliente { get; set; }
+        [Key]
+        public int num_conta { get; set; }
 
-        public string num_conta { get; set; }
+        [ForeignKey("Cliente")]
+        public string? cpf_cliente { get; set; }
 
-        public string cpf_cliente { get; set; }
+        public decimal saldo_conta { get; set; }
 
-        public double saldo_conta { get; set; }
-
-        public int tipo_conta { get; set; }
-
+        [ForeignKey("Agencia")]
         public int num_agencia { get; set; }
 
         public DateTime data_abertura { get; set; }
+
+        public Agencia? Agencia { get; set; }
+
+        public Cliente? Cliente { get; set; }
     }
 }
