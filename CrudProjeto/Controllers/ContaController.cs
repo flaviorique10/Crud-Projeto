@@ -19,7 +19,6 @@ namespace CrudProjeto.Controllers
         // Mostrar todos os Contas
         // GET: api/Contas
         [HttpGet]
-
         public async Task<ActionResult<IEnumerable<Conta>>> GetConta()
         {
             return await _context.Conta.ToListAsync();
@@ -47,7 +46,7 @@ namespace CrudProjeto.Controllers
         {
             if (ContaExists(conta.num_conta))
             {
-                return Conflict("Já existe uma agência com este número.");
+                return Conflict("Já existe uma conta com este número.");
             }
 
             _context.Conta.Add(conta);

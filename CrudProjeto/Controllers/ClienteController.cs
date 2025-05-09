@@ -19,7 +19,6 @@ namespace CrudProjeto.Controllers
         // Mostrar todos os Clientes
         // GET: api/Clientes
         [HttpGet]
-
         public async Task<ActionResult<IEnumerable<Cliente>>> GetCliente()
         {
             return await _context.Cliente.ToListAsync();

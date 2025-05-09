@@ -16,8 +16,10 @@ namespace CrudProjeto.Model
         public string? email_cliente { get; set; }
 
         public string? sexo_cliente { get; set; }
-        
-        public DateTime data_nascimento_cliente { get; set; }
+
+        [DataType(DataType.Date)]
+        [Range(typeof(DateTime), "1/1/1900", "1/1/2100", ErrorMessage = "Data inválida.")]
+        public DateTime? data_nascimento_cliente { get; set; }
 
         public string? profissao_cliente { get; set; }
 
@@ -32,5 +34,7 @@ namespace CrudProjeto.Model
         public string? nome_mae_cliente { get; set; }
 
         public decimal renda_cliente { get; set; }
+
+
     }
 }

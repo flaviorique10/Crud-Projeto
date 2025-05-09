@@ -27,10 +27,11 @@ namespace CrudProjeto.Controllers
 
         // Mostrar Historico por num_conta
         // GET: api/Historicos/5
-        [HttpGet("{num_conta}")]
-        public async Task<ActionResult<Historico>> GetHistorico(int num_conta)
+        [HttpGet("{cpf_cliente}/{num_conta}")]
+        public async Task<ActionResult<Historico>> GetHistorico(string cpf_cliente, int num_conta)
         {
-            var historico = await _context.Historico.FindAsync(num_conta);
+            var historico = await _context.Historico
+                .FirstOrDefaultAsync(h => h.cpf_cliente == cpf_cliente && h.num_conta == num_conta);
 
             if (historico == null)
             {
@@ -40,28 +41,34 @@ namespace CrudProjeto.Controllers
             return historico;
         }
 
-        // Criar Historico
-        // POST: api/Historicos
+        // Update the PostHistorico method to handle potential null values for cpf_cliente
         [HttpPost]
         public async Task<ActionResult<Historico>> PostHistorico(Historico historico)
         {
-            if (HistoricoExists(historico.num_conta))
+            // Valida se o cliente existe
+            if (!_context.Cliente.Any(c => c.cpf_cliente == historico.cpf_cliente))
             {
-                return Conflict("Já existe uma agência com este número.");
+                return BadRequest("Cliente não encontrado.");
+            }
+
+            // Valida se a conta existe
+            if (!_context.Conta.Any(c => c.num_conta == historico.num_conta))
+            {
+                return BadRequest("Conta não encontrada.");
             }
 
             _context.Historico.Add(historico);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetHistorico), new { num_conta = historico.num_conta }, historico);
+            return CreatedAtAction(nameof(GetHistorico), new { historico.cpf_cliente, historico.num_conta }, historico);
         }
 
         // Atualizar Historico
         // PUT: api/Historicos/5
-        [HttpPut("{num_conta}")]
-        public async Task<IActionResult> PutHistorico(int num_conta, Historico historico)
+        [HttpPut("{cpf_cliente}/{num_conta}")]
+        public async Task<IActionResult> PutHistorico(string cpf_cliente, int num_conta, Historico historico)
         {
-            if (num_conta != historico.num_conta)
+            if (cpf_cliente != historico.cpf_cliente || num_conta != historico.num_conta)
             {
                 return BadRequest();
             }
@@ -74,7 +81,7 @@ namespace CrudProjeto.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!HistoricoExists(num_conta))
+                if (!HistoricoExists(cpf_cliente, num_conta))
                 {
                     return NotFound();
                 }
@@ -89,10 +96,13 @@ namespace CrudProjeto.Controllers
 
         // Deletar Historico
         // DELETE: api/Historicos/5
-        [HttpDelete("{num_conta}")]
-        public async Task<IActionResult> DeleteHistorico(int num_conta)
+        [HttpDelete("{cpf_cliente}/{num_conta}")]
+        public async Task<IActionResult> DeleteHistorico(string cpf_cliente, int num_conta)
         {
-            var historico = await _context.Historico.FindAsync(num_conta);
+            // Busca o histórico pela chave composta
+            var historico = await _context.Historico
+                .FirstOrDefaultAsync(h => h.cpf_cliente == cpf_cliente && h.num_conta == num_conta);
+
             if (historico == null)
             {
                 return NotFound();
@@ -105,9 +115,9 @@ namespace CrudProjeto.Controllers
         }
 
         // Verificar se o Cliente existe
-        private bool HistoricoExists(int num_conta)
+        private bool HistoricoExists(string cpf_cliente, int num_conta)
         {
-            return _context.Historico.Any(e => e.num_conta == num_conta);
+            return _context.Historico.Any(e => e.cpf_cliente == cpf_cliente && e.num_conta == num_conta);
         }
     }
 }

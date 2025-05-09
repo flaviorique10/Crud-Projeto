@@ -27,10 +27,11 @@ namespace CrudProjeto.Controllers
 
         // Mostrar Investimento por num_conta
         // GET: api/Investimentos/5
-        [HttpGet("{num_conta}")]
-        public async Task<ActionResult<Investimento>> GetInvestimento(int num_conta)
+        [HttpGet("{cpf_cliente}/{num_conta}")]
+        public async Task<ActionResult<Investimento>> GetInvestimento(string cpf_cliente, int num_conta)
         {
-            var investimento = await _context.Investimento.FindAsync(num_conta);
+            var investimento = await _context.Investimento
+                .FirstOrDefaultAsync(i => i.cpf_cliente == cpf_cliente && i.num_conta == num_conta);
 
             if (investimento == null)
             {
@@ -40,28 +41,36 @@ namespace CrudProjeto.Controllers
             return investimento;
         }
 
-        // Criar Investimento
-        // POST: api/Investimentos
+        // Update the PostInvestimento method to handle potential null values for cpf_cliente.
         [HttpPost]
         public async Task<ActionResult<Investimento>> PostInvestimento(Investimento investimento)
         {
-            if (InvestimentoExists(investimento.num_conta))
+            if (string.IsNullOrEmpty(investimento.cpf_cliente))
             {
-                return Conflict("Já existe uma agência com este número.");
+                return BadRequest("O campo 'cpf_cliente' não pode ser nulo ou vazio.");
+            }
+
+            if (InvestimentoExists(investimento.cpf_cliente, investimento.num_conta))
+            {
+                return Conflict("Já existe um investimento para este cliente e conta.");
             }
 
             _context.Investimento.Add(investimento);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetInvestimento), new { num_conta = investimento.num_conta }, investimento);
+            return CreatedAtAction(
+                nameof(GetInvestimento),
+                new { cpf_cliente = investimento.cpf_cliente, num_conta = investimento.num_conta },
+                investimento
+            );
         }
 
         // Atualizar Investimento
         // PUT: api/Investimentos/5
-        [HttpPut("{num_conta}")]
-        public async Task<IActionResult> PutInvestimento(int num_conta, Investimento investimento)
+        [HttpPut("{cpf_cliente}/{num_conta}")]
+        public async Task<IActionResult> PutInvestimento(string cpf_cliente, int num_conta, Investimento investimento)
         {
-            if (num_conta != investimento.num_conta)
+            if (cpf_cliente != investimento.cpf_cliente || num_conta != investimento.num_conta)
             {
                 return BadRequest();
             }
@@ -74,7 +83,7 @@ namespace CrudProjeto.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!InvestimentoExists(num_conta))
+                if (!InvestimentoExists(cpf_cliente, num_conta))
                 {
                     return NotFound();
                 }
@@ -89,10 +98,12 @@ namespace CrudProjeto.Controllers
 
         // Deletar Investimento
         // DELETE: api/Investimentos/5
-        [HttpDelete("{num_conta}")]
-        public async Task<IActionResult> DeleteInvestimento(int num_conta)
+        [HttpDelete("{cpf_cliente}/{num_conta}")]
+        public async Task<IActionResult> DeleteInvestimento(string cpf_cliente, int num_conta)
         {
-            var investimento = await _context.Investimento.FindAsync(num_conta);
+            var investimento = await _context.Investimento
+                .FirstOrDefaultAsync(i => i.cpf_cliente == cpf_cliente && i.num_conta == num_conta);
+
             if (investimento == null)
             {
                 return NotFound();
@@ -105,9 +116,10 @@ namespace CrudProjeto.Controllers
         }
 
         // Verificar se o Cliente existe
-        private bool InvestimentoExists(int num_conta)
+        private bool InvestimentoExists(string cpf_cliente, int num_conta)
         {
-            return _context.Investimento.Any(e => e.num_conta == num_conta);
+            return _context.Investimento
+                .Any(e => e.cpf_cliente == cpf_cliente && e.num_conta == num_conta);
         }
     }
 }

@@ -4,6 +4,7 @@ namespace CrudProjeto.Model
 {
     public class Agencia
     {
+        
         [Key]
         public int num_agencia { get; set; }
 

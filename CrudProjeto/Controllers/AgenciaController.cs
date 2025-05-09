@@ -7,7 +7,7 @@ namespace CrudProjeto.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AgenciaController : ControllerBase
+    public class AgenciaController : ControllerBase 
     {
         private readonly ApplicationDbContext _context;
 
